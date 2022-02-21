@@ -18,7 +18,7 @@ class dlLogger:
 class DLv2:
     yesOrNo = {"y" : True, "n" : False, "" : False}
     formatOptionCheck = {"0" : True, "1" : True, "2" : True, "3" : True, "4" : True, "5" : True, "6" : True, "7" : True, "8" : True}
-    qualityOptionCheck = {"0" : True, "1" : True, "2" : True, "3" : True, "4" : True}
+    qualityOptionCheck = {"0" : True, "1" : True, "2" : True, "3" : True, "4" : True, "5" : True}
 
     formatToEXT = ["", "4320", "2460", "1440", "1080", "720", "480", "mp3", "wav"]
     qualityToBitrate = ["", "320", "256", "192", "128", "64"]
@@ -32,11 +32,13 @@ class DLv2:
     def __init__(self) -> None:
         self.Main()
 
-    def dl(self, opt, iter):
-        try:
-            yt_dlp.YoutubeDL(opt).download(iter)
-        except Exception:
-            pass
+    def dl(self, opt):
+        dl = yt_dlp.YoutubeDL(opt)
+        for i in self.url:
+            try:
+                dl.download(i)
+            except Exception:
+                pass
 
     def Main(self):
         os.chdir(str(os.path.dirname(__file__) + "\\"))
@@ -88,32 +90,26 @@ class DLv2:
 
         if self.formatOption == 7 or self.formatOption == 8:
             if self.qualityOption == 0:
-                options = {"format" : "ba*", "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegExtractAudio", "preferredcodec" : "{}".format(self.formatToEXT[self.formatOption])}], "logger" : dlLogger()}
-                for i in self.url:
-                    self.dl(options, i)
+                options = {"format_sort" : ["hasaud"], "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegExtractAudio", "preferredcodec" : "{}".format(self.formatToEXT[self.formatOption])}], "logger" : dlLogger()}
+                self.dl(options)
             else:
-                options = {"format" : "ba*[abr<={}]".format(self.qualityToBitrate[self.qualityOption]), "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegExtractAudio", "preferredcodec" : "{}".format(self.formatToEXT[self.formatOption]), "preferredquality" : "{}".format(self.qualityToBitrate[self.qualityOption])}], "logger" : dlLogger()}
-                for i in self.url:
-                    self.dl(options, i)
+                options = {"format_sort" : ["hasaud", "abr:{}".format(self.qualityToBitrate[self.qualityOption])], "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegExtractAudio", "preferredcodec" : "{}".format(self.formatToEXT[self.formatOption]), "preferredquality" : "{}".format(self.qualityToBitrate[self.qualityOption])}], "logger" : dlLogger()}
+                self.dl(options)
 
         elif not self.formatOption == 0:
             if self.qualityOption == 0:
-                options = {"format" : "bv*[height<={}]+ba".format(self.formatToEXT[self.formatOption]), "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegVideoRemuxer", "preferedformat" : "mp4",}], "logger" : dlLogger()}
-                for i in self.url:
-                    self.dl(options, i)
+                options = {"format_sort": ["res:{}".format(self.formatToEXT[self.formatOption]), "codec:h264:m4a"], "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegVideoRemuxer", "preferedformat" : "mp4",}], "logger" : dlLogger()}
+                self.dl(options)
             else:
-                options = {"format" : "bv*[height<={}]+ba[abr<={}]".format(self.formatToEXT[self.formatOption], self.qualityToBitrate[self.qualityOption]), "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegVideoRemuxer", "preferedformat" : "mp4",}], "logger" : dlLogger()}
-                for i in self.url:
-                    self.dl(options, i)
+                options = {"format_sort": ["res:{}".format(self.formatToEXT[self.formatOption]),"abr:{}".format(self.qualityToBitrate[self.qualityOption]), "codec:h264:m4a"], "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegVideoRemuxer", "preferedformat" : "mp4",}], "logger" : dlLogger()}
+                self.dl(options)
         else:
             if self.qualityOption == 0:
-                options = {"format" : "bv*+ba", "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegVideoRemuxer", "preferedformat" : "mp4",}], "logger" : dlLogger()}
-                for i in self.url:
-                    self.dl(options, i)
+                options = {"format_sort" : ["codec:h264:m4a"], "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegVideoRemuxer", "preferedformat" : "mp4",}], "logger" : dlLogger()}
+                self.dl(options)
             else:
-                options = {"format" : "bv*+ba[abr<={}]".format(self.qualityToBitrate[self.qualityOption]), "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegVideoRemuxer", "preferedformat" : "mp4",}], "logger" : dlLogger()}
-                for i in self.url:
-                    self.dl(options, i)
+                options = {"format_sort" : ["abr:{}".format(self.qualityToBitrate[self.qualityOption]), "codec:h264:m4a"], "outtmpl" : self.saveLocation + r"\%(title)s-%(id)s.%(ext)s", "postprocessors" : [{"key" : "FFmpegVideoRemuxer", "preferedformat" : "mp4",}], "logger" : dlLogger()}
+                self.dl(options)
 
         print("Your file(s) have been saved at {}".format(self.saveLocation))
         s(5)
